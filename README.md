@@ -39,17 +39,15 @@ $msg->addFile('image/png', '/tmp/test-file.png', 'reminder.png');
 $msg->send();
 ```
 
-## API
+## Object Properties
 
-### Object Properties
-
-#### charset
+### charset
 
 Character set to assume for all text parts attached. Default: 'UTF-8'.  Be sure to explicitly set PHP's mb_internal_encoding() to the same character set as this property, or else headers will not be encoded properly.
 
-### Object Methods
+## Object Methods
 
-#### __set(*$name*, *$value*)
+### __set(*$name*, *$value*)
 
 To define any header, set a property of the same name.  If the header name contains dashes, use underscores instead and they will be converted to dashes.  For example:
 
@@ -58,7 +56,7 @@ $msg = new Email();
 $msg->X_Mailer_Info = "My Custom Mailer v0.15";
 ```
 
-#### addData(*$type*, *$displayName*, *$data*)
+### addData(*$type*, *$displayName*, *$data*)
 
 Add a raw data part to message.
 
@@ -70,7 +68,7 @@ Netiquette: you should add text and HTML parts before any binary file attachment
 
 **Returns:** `null`
 
-#### addFile(*$filePath*, *$displayName*[, *$type*])
+### addFile(*$filePath*, *$displayName*[, *$type*])
 
 Netiquette: you should add binary files after inline text and HTML parts.
 
@@ -80,7 +78,7 @@ Netiquette: you should add binary files after inline text and HTML parts.
 
 **Returns:** `null`
 
-#### addText(*$text*)
+### addText(*$text*)
 
 Attach inline plain text part to message.
 
@@ -88,7 +86,7 @@ Attach inline plain text part to message.
 
 **Returns:** `null`
 
-#### addHTML(*$html*)
+### addHTML(*$html*)
 
 Attach inline HTML part to message.
 
@@ -96,7 +94,7 @@ Attach inline HTML part to message.
 
 **Returns:** `null`
 
-#### addTextHTML(*$text*, *$html*)
+### addTextHTML(*$text*, *$html*)
 
 Attach a pair of text and HTML _equivalents_ to message.
 
@@ -107,7 +105,7 @@ This implements the "multipart/alternative" nested type so viewers can expect th
 
 **Returns:** `null`
 
-#### build([*$skipTS*])
+### build([*$skipTS*])
 
 Build message into a string.
 
@@ -122,7 +120,7 @@ mail($msg->getTo(), $msg->getSubject(), $parts[1], $parts[0]);
 
 **Returns:** `string` — The entire message, ready to send (i.e. via sendmail).
 
-#### send()
+### send()
 
 Build and immediately send message.
 
