@@ -1,5 +1,7 @@
 # Email
 
+[![license](https://img.shields.io/github/license/vphantom/php-email.svg?style=plastic)]() [![GitHub release](https://img.shields.io/github/release/vphantom/php-email.svg?style=plastic)]() [![Build Status](https://travis-ci.org/vphantom/php-email.svg?branch=v1.0.0)](https://travis-ci.org/vphantom/php-email) [![Coverage Status](https://coveralls.io/repos/github/vphantom/php-email/badge.svg?branch=v1.0.0)](https://coveralls.io/github/vphantom/php-email?branch=v1.0.0)
+
 Create/send multipart MIME messages
 
 Facilitates the creation of MIME compatible messages. It has useful features like easy creation of alternative bodies (i.e. plain+html) and multiple file attachments. It is _not_ a complete implementation, but it is very small which suits my needs.
