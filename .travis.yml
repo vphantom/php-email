@@ -1,0 +1,16 @@
+language: php
+php:
+   - 5.6
+   - 7.0
+   - 7.1
+
+before_script:
+   - travis_retry wget http://getcomposer.org/composer.phar
+   - travis_retry php composer.phar install --dev --no-interaction
+
+script:
+   - php vendor/bin/phpunit --whitelist Email.php --coverage-clover build/logs/clover.xml test.php
+
+after_script:
+   - travis_retry php vendor/bin/coveralls -v
+
