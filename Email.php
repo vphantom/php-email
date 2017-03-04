@@ -1,32 +1,17 @@
 <?php
 
 /**
- * Email
- *
- * Create/send multipart MIME messages
+ * Create/send multipart MIME messages.
  *
  * Facilitates the creation of MIME compatible messages. It has useful
  * features like easy creation of alternative bodies (i.e. plain+html) and
  * multiple file attachments. It is *not* a complete implementation, but it is
  * very small which suits my needs.
  * 
- * Example:
- * 
- *     require_once 'email.php';
- *     mb_internal_encoding('UTF-8');
- *     $msg = new Email();
- *     $msg->charset = 'UTF-8';
- *     $msg->to = "Someone <foo@example.com>";
- *     $msg->from = "Myself <bar@example.com>";
- *     $msg->subject = "Friendly reminder service";
- *     $msg->addText("Hello Someone,\n\nThis is your friendly reminder.\n");
- *     $msg->addFile('image/png', '/tmp/test-file.png', 'reminder.png');
- *     $msg->send();
- * 
- * Basically, you instantiate the <email> class, set a few headers, add some
- * content parts (at least one) and either build to a string using <build()>
- * or send using PHP's mail() with <send()>.
- * 
+ * Basically, you instantiate the `Email` class, set a few headers, add some
+ * content parts (at least one) and either build to a string using `build()`
+ * or send using PHP's `mail()` with `send()`.
+ *
  * PHP Version 5
  *
  * @category  Library
@@ -38,14 +23,24 @@
  */
 
 /**
- * Class Email
+ * Create/send multipart MIME messages.
  *
- * Create/send multipart MIME messages
+ * Example:
  *
- * PHP Version 5
+ *     require_once 'email.php';
+ *     mb_internal_encoding('UTF-8');
+ *     $msg = new Email();
+ *     $msg->charset = 'UTF-8';
+ *     $msg->to = "Someone <foo@example.com>";
+ *     $msg->from = "Myself <bar@example.com>";
+ *     $msg->subject = "Friendly reminder service";
+ *     $msg->addText("Hello Someone,\n\nThis is your friendly reminder.\n");
+ *     $msg->addFile('image/png', '/tmp/test-file.png', 'reminder.png');
+ *     $msg->send();
  *
  * @category  Library
  * @package   Email
+ * @class     Email
  * @author    Stéphane Lavergne <lis@imars.com>
  * @copyright 2008-2017 Stéphane Lavergne
  * @license   https://opensource.org/licenses/MIT  MIT License
@@ -56,13 +51,13 @@ class Email
     // Used by <buildParts()> to output MIME greeting only once.
     protected $bpRoot;
 
-    // Arrayhash of headers. Values are not encoded here.
+    // Associative array of headers. Values are not encoded here.
     protected $envelope;
 
-    // Indexed array of parts. Each part is an arrayhash with plenty of header
-    // information possibly included (see <email_parse()> for a full list) and
-    // a 'data' key with either a string or another indexed array to represent
-    // sub-parts.
+    // Indexed array of parts. Each part is an associative array with plenty
+    // of header information possibly included (see <email_parse()> for a full
+    // list) and a 'data' key with either a string or another indexed array to
+    // represent sub-parts.
     protected $parts;
 
     // Character set to assume for all text parts attached. Default: 'UTF-8'.
@@ -72,10 +67,11 @@ class Email
     public $charset;
 
     /**
-     * Property overloading
+     * Property overloading.
      *
-     * To define any header, set a property of the same name.  If the header name contains
-     * dashes, use underscores instead and they will be converted to dashes.  For example:
+     * To define any header, set a property of the same name.  If the header
+     * name contains dashes, use underscores instead and they will be
+     * converted to dashes.  For example:
      *
      *     $msg = new Email();
      *     $msg->X_Mailer_Info = "My Custom Mailer v0.15";
@@ -105,11 +101,13 @@ class Email
     }
 
     /**
-     * Extract e-mail from possible name-email combo
+     * Extract e-mail from possible name-email combo.
      *
      * @param string $email Possibly dirty e-mail address
      *
      * @return string Cleaned up address, "" on failure
+     *
+     * @protected
      */
     protected function undressEmail($email)
     {
@@ -131,6 +129,8 @@ class Email
      * @param string $s String to encode
      *
      * @return string
+     *
+     * @protected
      */
     protected function qBestEncoding($s)
     {
@@ -140,24 +140,26 @@ class Email
     }
 
     /**
-     * Encode a header part with max-length in mind
+     * Encode a header part with max-length in mind.
      *
-     * Encode a header part with max-length in mind. PHP's
-     * mb_encode_mimeheader() used by <qBestEncoding()> splits lines to stay
-     * within 75 characters wide. This doesn't work with our <headerEncode()>
-     * which takes care of encoding the shortest pieces possible, instead of
-     * PHP's default behavior of encoding the entire header or nothing.
+     * PHP's `mb_encode_mimeheader()` used by `qBestEncoding()` splits lines
+     * to stay within 75 characters wide. This doesn't work with our
+     * `headerEncode()` which takes care of encoding the shortest pieces
+     * possible, instead of PHP's default behavior of encoding the entire
+     * header or nothing.
      *
      * As a work-around, this wrapper is given a prefix which should be the
      * header line(s), including name, prior to the portion to be encoded. A
-     * bogus prefix is added temporarily to PHP's mb_encode_mimeheader() and
+     * bogus prefix is added temporarily to PHP's `mb_encode_mimeheader()` and
      * is subsequently removed to guarantee that the final header line(s) will
      * not exceed 75 characters.
      *
      * @param string $prefix The header string so far
      * @param string $string The new portion to be encoded
      *
-     * @return string Encoded string with shortest of 'Q' or 'B' encoding, * preferring 'Q'.
+     * @return string Encoded string with shortest of 'Q' or 'B' encoding, preferring 'Q'.
+     *
+     * @protected
      */
     protected function qEncode($prefix, $string)
     {
@@ -170,7 +172,7 @@ class Email
     }
 
     /**
-     * Prepare a header line for RFC822 compliance
+     * Prepare a header line for RFC822 compliance.
      * 
      * The header's value is encoded if high-ASCII characters are found, for
      * the shortest portions possible (not splitting words). Addresses are
@@ -180,6 +182,8 @@ class Email
      * @param string $value The header's full value
      *
      * @return string which should be RFC822-compliant (width, encoding, etc.)
+     *
+     * @protected
      */
     protected function headerEncode($name, $value)
     {
@@ -217,7 +221,7 @@ class Email
     }
 
     /**
-     * Add useful defaults to a part arrayhash
+     * Add useful defaults to a part associative array.
      *
      * Specifically, it adds character set information if it's missing. It
      * also adds "filename" if "name" is supplied but not "filename". Finally,
@@ -225,9 +229,11 @@ class Email
      * Base64, "encoding" is changed accordingly, and "disposition" is set to
      * "attachment".
      *
-     * @param array $part The arrayhash to augment
+     * @param array $part The associative array to augment
      *
      * @return array The input part with possibly some defaults added
+     *
+     * @protected
      */
     protected function mkPart($part)
     {
@@ -243,9 +249,9 @@ class Email
     }
 
     /**
-     * Build body parts of message
+     * Build body parts of message.
      *
-     * Invoked by <build()> after headers are created. This is the core of the
+     * Invoked by `build()` after headers are created. This is the core of the
      * multipart support. It is called recursively if sub-parts are
      * encountered in the source structure.
      *
@@ -253,6 +259,8 @@ class Email
      * @param string $type  MIME type of the current context
      *
      * @return string The MIME compliant body content
+     *
+     * @protected
      */
     protected function buildParts($parts, $type = 'multipart/mixed')
     {
@@ -321,12 +329,12 @@ class Email
     }
 
     /**
-     * Add a raw data part to message
+     * Add a raw data part to message.
      *
-     * NETIQUETTE: You should add text and HTML parts before any binary file
+     * Netiquette: you should add text and HTML parts before any binary file
      * attachments.
      *
-     * @param string $type        MIME type of the attachment (i.e. 'text/plain')
+     * @param string $type        MIME type of the attachment (i.e. "text/plain")
      * @param string $displayname File name to suggest to user
      * @param mixed  $data        Actual raw data to attach
      *
@@ -338,12 +346,13 @@ class Email
     }
 
     /**
-     * Attach a file part to message
+     * Attach a file part to message.
      *
-     * NETIQUETTE: You should add text and HTML parts before any binary file
-     * attachments.
+     * Netiquette: you should add binary files after inline text and HTML
+     * parts.
      *
-     * Note that the MIME type is automatically detected from the file itself.
+     * Note that the MIME type is automatically detected from the file itself
+     * if not specified.
      *
      * @param string      $filepath    Path on local file system
      * @param string      $displayname File name to suggest to user
@@ -362,7 +371,7 @@ class Email
     }
 
     /**
-     * Attach plain text part to message
+     * Attach plain text part to message.
      *
      * @param string $text Content to attach
      *
@@ -374,7 +383,7 @@ class Email
     }
 
     /**
-     * Attach HTML part to message
+     * Attach HTML part to message.
      *
      * @param string $html Content to attach
      *
@@ -386,9 +395,9 @@ class Email
     }
 
     /**
-     * Attach a pair of text and HTML equivalents to message
+     * Attach a pair of text and HTML equivalents to message.
      *
-     * This implements the 'multipart/alternative' type so viewers can expect
+     * This implements the "multipart/alternative" type so viewers can expect
      * the text and HTML to represent the same content.
      *
      * @param string $text The plain text content
@@ -408,19 +417,19 @@ class Email
     }
 
     /**
-     * Build message to a string
+     * Build message to a string.
      *
-     * CAVEAT: If you intend to use PHP's mail(), you will need to split
-     * headers from the body yourself since PHP needs headers separately.
-     * Something like this:
+     * **Caveat:** If you intend to use PHP's `mail()`, you will need to split
+     * headers from the body yourself since PHP needs headers separately, and
+     * use the `$skipTS` argument to extract "To" and "Subject" from the
+     * headers.  Something like this:
      *
-     *     // Assuming your email is $msg:
      *     $parts = preg_split('/\r?\n\r?\n/', $msg->build(true), 2);
      *     mail($msg->getTo(), $msg->getSubject(), $parts[1], $parts[0]);
      *
-     * @param bool $skipTS Skip 'To:' and 'Subject:' headers. Useful for PHP's mail().
+     * @param bool $skipTS Skip "To" and "Subject" headers.
      *
-     * @return string The entire message ready to send (i.e. via sendmail)
+     * @return string The entire message ready to send (i.e. via `sendmail`)
      */
     public function build($skipTS = false)
     {
@@ -436,18 +445,18 @@ class Email
     }
 
     /**
-     * Build and immediately send message
+     * Build and immediately send message.
      *
-     * Note that you can modify some headers and call <build()> or <send()>
+     * Note that you can modify some headers and call `build()` or `send()`
      * again on the current message.  This can be handy for mailing lists
      * where only the destination changes (and where using the "Bcc" field
      * isn't appropriate, that is.)
      *
-     * Internally, this uses PHP's popen() to invoke your PHP configuration's
-     * "sendmail_path" directly. This avoids the extra overhead and formatting
-     * limitations of PHP's built-in mail().
+     * Internally, this uses PHP's `popen()` to invoke your PHP
+     * configuration's "sendmail_path" directly. This avoids the extra
+     * overhead and formatting limitations of PHP's built-in `mail()`.
      *
-     * @return mixed FALSE if the pipe couldn't be opened, the termination status of the sendmail process otherwise.
+     * @return mixed False if the pipe couldn't be opened, the termination status of the sendmail process otherwise.
      */
     public function send()
     {
