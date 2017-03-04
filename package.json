@@ -1,0 +1,27 @@
+{
+  "name": "php-email",
+  "version": "1.0.0",
+  "description": "private",
+  "private": true,
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "docblox2md": "^0.6.4"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vphantom/php-email.git"
+  },
+  "keywords": [
+    "private"
+  ],
+  "author": "Stéphane Lavergne <lis@imars.com> (https://github.com/vphantom)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/vphantom/php-email/issues"
+  },
+  "homepage": "https://github.com/vphantom/php-email#readme"
+}
