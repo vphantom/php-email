@@ -19,118 +19,148 @@ $ composer require vphantom/email
 Basically, you instantiate the `Email` class, set a few headers, add some content parts (at least one) and either build to a string using `$msg->build()` or send by piping through `sendmail` with `$msg->send()`.
 
 
-```php
-<?php
+<!-- BEGIN DOC-COMMENT H2 Email.php -->
+## `class Email`
 
-// Load dependencies provided by Composer
-require_once __DIR__ . '/vendor/autoload.php';
+Create/send multipart MIME messages. 
 
-// Make sure we're in Unicode
-mb_internal_encoding('UTF-8');
+Example: 
 
-// Create a little e-mail
-$msg = new Email();
-$msg->charset = 'UTF-8';
-$msg->to = "Someone <foo@example.com>";
-$msg->from = "Myself <bar@example.com>";
-$msg->subject = "Friendly reminder service";
-$msg->addText("Hello Someone,\n\nThis is your friendly reminder.\n");
-$msg->addFile('image/png', '/tmp/test-file.png', 'reminder.png');
+    require_once 'email.php';
+    mb_internal_encoding('UTF-8');
+    $msg = new Email();
+    $msg->charset = 'UTF-8';
+    $msg->to = "Someone <foo@example.com>";
+    $msg->from = "Myself <bar@example.com>";
+    $msg->subject = "Friendly reminder service";
+    $msg->addText("Hello Someone,\n\nThis is your friendly reminder.\n");
+    $msg->addFile('image/png', '/tmp/test-file.png', 'reminder.png');
+    $msg->send();
 
-// Send
-$msg->send();
-```
 
-## Object Properties
 
-### charset
+### `public function __set($name, $value)`
 
-Character set to assume for all text parts attached. Default: 'UTF-8'.  Be sure to explicitly set PHP's mb_internal_encoding() to the same character set as this property, or else headers will not be encoded properly.
+Property overloading. 
 
-## Object Methods
+To define any header, set a property of the same name.  If the header name contains dashes, use underscores instead and they will be converted to dashes.  For example: 
 
-### __set(*$name*, *$value*)
+    $msg = new Email();
+    $msg->X_Mailer_Info = "My Custom Mailer v0.15";
 
-To define any header, set a property of the same name.  If the header name contains dashes, use underscores instead and they will be converted to dashes.  For example:
 
-```php
-$msg = new Email();
-$msg->X_Mailer_Info = "My Custom Mailer v0.15";
-```
 
-### addData(*$type*, *$displayName*, *$data*)
+**Parameters:**
 
-Add a raw data part to message.
+* `$name` — string — Name which will have underscores changed to dashes
+* `$value` — string — Contents of the header
 
-Netiquette: you should add text and HTML parts before any binary file attachments.
+**Returns:** null
+
+### `public function __construct()`
+
+Constructor 
+
+
+**Returns:** `object` — Email instance
+
+### `public function addData($type, $displayname, $data)`
+
+Add a raw data part to message. 
+
+Netiquette: you should add text and HTML parts before any binary file attachments. 
+
+
+**Parameters:**
 
 * `$type` — string — MIME type of the attachment (i.e. "text/plain")
-* `$displayName` — string — File name to suggest to user
+* `$displayname` — string — File name to suggest to user
 * `$data` — mixed — Actual raw data to attach
 
-**Returns:** `null`
+**Returns:** null
 
-### addFile(*$filePath*, *$displayName*[, *$type*])
+### `public function addFile($filepath, $displayname, $mimetype = null)`
 
-Netiquette: you should add binary files after inline text and HTML parts.
+Attach a file part to message. 
 
-* `$filePath` — string — Path on local file system
-* `$displayName` — string — File name to suggest to user
-* `$type` — string|null — (Optional) MIME Type (i.e. "text/plain")
+Netiquette: you should add binary files after inline text and HTML parts. 
 
-**Returns:** `null`
+Note that the MIME type is automatically detected from the file itself if not specified. 
 
-### addText(*$text*)
 
-Attach inline plain text part to message.
+**Parameters:**
+
+* `$filepath` — string — Path on local file system
+* `$displayname` — string — File name to suggest to user
+* `$mimetype` — string|null — (Optional) MIME Type
+
+**Returns:** null
+
+### `public function addText($text)`
+
+Attach plain text part to message. 
+
+
+**Parameters:**
 
 * `$text` — string — Content to attach
 
-**Returns:** `null`
+**Returns:** null
 
-### addHTML(*$html*)
+### `public function addHTML($html)`
 
-Attach inline HTML part to message.
+Attach HTML part to message. 
 
-* `$text` — string — Content to attach
 
-**Returns:** `null`
+**Parameters:**
 
-### addTextHTML(*$text*, *$html*)
+* `$html` — string — Content to attach
 
-Attach a pair of text and HTML _equivalents_ to message.
+**Returns:** null
 
-This implements the "multipart/alternative" nested type so viewers can expect the text and HTML to represent the same content.
+### `public function addTextHTML($text, $html)`
+
+Attach a pair of text and HTML equivalents to message. 
+
+This implements the "multipart/alternative" type so viewers can expect the text and HTML to represent the same content. 
+
+
+**Parameters:**
 
 * `$text` — string — The plain text content
 * `$html` — string — The HTML equivalent content
 
-**Returns:** `null`
+**Returns:** null
 
-### build([*$skipTS*])
+### `public function build($skipTS = false)`
 
-Build message into a string.
+Build message to a string. 
 
-**Caveat:** If you intend to use PHP's mail(), you will need to split headers from the body yourself since PHP needs headers separately, and use the `$skipTS` argument to extract "To" and "Subject" from the headers.  Something like this:
+**Caveat:** If you intend to use PHP's `mail()`, you will need to split headers from the body yourself since PHP needs headers separately, and use the `$skipTS` argument to extract "To" and "Subject" from the headers.  Something like this: 
 
-```php
-$parts = preg_split('/\r?\n\r?\n/', $msg->build(true), 2);
-mail($msg->getTo(), $msg->getSubject(), $parts[1], $parts[0]);
-```
+    $parts = preg_split('/\r?\n\r?\n/', $msg->build(true), 2);
+    mail($msg->getTo(), $msg->getSubject(), $parts[1], $parts[0]);
 
-* `$skipTS` — bool|null — Skip "To" and "Subject" headers
 
-**Returns:** `string` — The entire message, ready to send (i.e. via sendmail).
 
-### send()
+**Parameters:**
 
-Build and immediately send message.
+* `$skipTS` — bool — Skip "To" and "Subject" headers.
 
-Note that you can modify some headers and call `build()` or `send()` repeatedly on the same message object.  This can be handy for mailing lists where only the destination changes (and where using the "Bcc" field isn't appropriate, that is.)
+**Returns:** `string` — The entire message ready to send (i.e. via `sendmail`)
 
-Internally, this uses PHP's `popen()` to invoke your PHP configuration's `sendmail_path` directly. This avoids the extra overhead and formatting limitations of PHP's built-in `mail()`.
+### `public function send()`
+
+Build and immediately send message. 
+
+Note that you can modify some headers and call `build()` or `send()` again on the current message.  This can be handy for mailing lists where only the destination changes (and where using the "Bcc" field isn't appropriate, that is.) 
+
+Internally, this uses PHP's `popen()` to invoke your PHP configuration's "sendmail_path" directly. This avoids the extra overhead and formatting limitations of PHP's built-in `mail()`. 
+
 
 **Returns:** `mixed` — False if the pipe couldn't be opened, the termination status of the sendmail process otherwise.
+
+<!-- END DOC-COMMENT -->
 
 
 ## MIT License
